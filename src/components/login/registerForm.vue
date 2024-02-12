@@ -174,7 +174,7 @@ const sendEmailCode = () => {
   grid-column: 1;
   opacity: 0;
   transition: 1s ease-in-out;
-  pointer-events: none;
+  z-index:0;
   padding: 0 30%;
 }
 
@@ -184,7 +184,7 @@ const sendEmailCode = () => {
   opacity: 1;
   transition: 2s ease-in-out;
   transition-delay: 0.5s;
-  pointer-events: all;
+  z-index:1;
 }
 
 .register-title {

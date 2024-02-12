@@ -1,14 +1,11 @@
 <script lang="ts" setup>
-import {requestInstance1} from "@/utils/requestUtil";
+import {requestInstance, requestInstance1} from "@/utils/requestUtil";
 import {nextTick, onActivated, onMounted, reactive, ref} from "vue";
 import {ArrowUp, Loading} from "@element-plus/icons-vue";
-import {useRouter} from "vue-router";
 import {ElMessage} from "element-plus";
+import type {PageConfig, NaviItem} from '@/interface/mainPage'
 import {scrollStore} from "@/stores/scrollStore";
-import type {PageConfig,NaviItem} from'@/interface/mainPage'
-
-const scroll_store = scrollStore();
-const router = useRouter();
+import {getMediaList} from "@/api/pictureApi";
 // 变量定义区
 let pageConfig = reactive<PageConfig>({
   isPageLoaded: false,
@@ -20,6 +17,7 @@ let pageConfig = reactive<PageConfig>({
   currentType: '推荐',
   isOnTop: true
 })
+const scroll_store = scrollStore();
 
 
 // '美食','美妆','时尚','技能','影视','职场','情感','家居','游戏','旅行'
@@ -45,12 +43,17 @@ function changeNaviItem(index: number) {
 }
 
 function getData() {
-  const query = {page: pageConfig.currentPage, pageSize: pageConfig.pageSize, type: pageConfig.currentType}
-  requestInstance1({
-    params: query
-  }).then((res) => {
-    const items = res.data.items;
-
+  const query = {
+  "pageSize": pageConfig.pageSize,
+  "pageNum": pageConfig.currentPage,
+  "total": 0,
+  "category": "",
+  "searchKey": "",
+  "cursorScore": "",
+  "userId": ""
+}
+  getMediaList(query).then((res) => {
+    const items = res.data.data;
     items.forEach((item: any) => {
       pageConfig.dataList.push(item)
     })
@@ -75,7 +78,6 @@ function waterFull() {
   }
   // 可视区域高度
   const clientWidth = document.documentElement.clientWidth - 300;
-  // console.log(clientWidth)
   const sections: HTMLElement[] = Array.from(document.querySelectorAll('.note-section'));
   const itemWidth = sections[0].offsetWidth;
   let colNum = 5;
@@ -84,7 +86,6 @@ function waterFull() {
   for (let i = 0; i < sections.length; i++) {
     if (i < colNum) {
       itemHeights.push(sections[i].offsetHeight);
-      // console.log(sections[i].style, "57")
     } else {
       let minHeight = Math.min(...itemHeights);
       let minIndex = itemHeights.indexOf(minHeight);
@@ -98,12 +99,7 @@ function waterFull() {
 }
 
 function onScroll() {
-  if ((window.pageYOffset || window.scrollY) === 0) {
-    pageConfig.isOnTop = true
-  } else {
-    pageConfig.isOnTop = false
-  }
-  console.log(pageConfig.isOnTop)
+  pageConfig.isOnTop = (window.pageYOffset || window.scrollY) === 0;
 }
 
 function toTop() {
@@ -125,16 +121,7 @@ function load() {
 
 getData()
 
-router.beforeEach((to, from, next) => {
-  if (from.fullPath === "/explore") {
-    scroll_store.setScrollTop(window.pageYOffset || window.scrollY);
-    console.log(scroll_store.getScrollTop)
-  }
-  next()
-})
-
 onActivated(() => {
-  console.log("onMounted")
   nextTick(() => {
     window.scrollTo(0, scroll_store.getScrollTop ? scroll_store.getScrollTop : 0)
   })
@@ -164,21 +151,21 @@ onMounted(() => {
       <div class="note-section" v-for="(item,index) in pageConfig.dataList" :key="index" @scroll="onScroll">
         <a>
           <div class="cover">
-            <img class="cover-img" :src="item['note_card']['cover']['url_default']">
-            <p>{{ item['note_card']['display_title'] }}</p>
+            <img class="cover-img" :src="item['cover']">
+            <p>{{ item['desc'] }}</p>
           </div>
         </a>
         <div class="footer">
           <a>
             <div class="user-head">
-              <div><img class="user-head-img" :src="item['note_card']['user']['avatar']"></div>
-              <div><p>{{ item['note_card']['user']['nickname'] }}</p></div>
+              <div><img class="user-head-img" :src="item['user']['avatar']"></div>
+              <div><p>{{ item['user']['nickName'] }}</p></div>
             </div>
           </a>
           <div class="footer-gap"></div>
           <div class="like">
-            <div :class="{'like-icon':true,'liked':item['note_card']['interact_info']['liked']}"></div>
-            <div class="like-num">{{ item['note_card']['interact_info']['liked_count'] }}</div>
+            <div :class="{'like-icon':true,'liked':item['like']}"></div>
+            <div class="like-num">{{ item['thumbs'] }}</div>
           </div>
         </div>
       </div>

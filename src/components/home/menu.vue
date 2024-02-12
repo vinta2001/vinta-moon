@@ -3,11 +3,12 @@ import {ref} from "vue";
 import {useRouter} from "vue-router";
 import {userStore} from "@/stores/userStore";
 import {scrollStore} from "@/stores/scrollStore";
+import {ElMessage} from "element-plus";
 
 
 let router = useRouter()
-const user_store = userStore();
-const scroll_store = scrollStore()
+const scroll_store = scrollStore();
+const user = userStore();
 
 interface MenuItem {
   name: string,
@@ -15,34 +16,47 @@ interface MenuItem {
   path: string
 }
 
-const menuItem = ref([{name: '发现', active: false, path: '/explore'}, {name: '发布', active: false, path: '/create'}, {
-  name: '通知',
-  active: false,
-  path: '/notification'
-}, {name: '我', active: false, path: '/user'}])
-
-menuItem.value.forEach((ele: any, index: number, arr: any) => {
-  ele['active'] = ele['path'].split('/')[1] === router.currentRoute.value.fullPath.split('/')[1];
-})
+const menuItem = ref([
+  {name: '发现', active: false, path: '/explore'},
+  {name: '发布', active: false, path: '/publish'},
+  {name: '通知', active: false, path: '/notification'},
+  {name: '我', active: false, path: '/user'}
+])
 
 const choose = (item: MenuItem) => {
   menuItem.value.forEach((element: MenuItem) => {
     element['active'] = element == item
   });
-  if (item['name'] == '我') {
-    user_store.getUserId == null ? router.push({path: '/user/login'}) : router.push({path: '/user/info'});
-  } else {
-    router.push({path: item['path']});
-  }
+  router.push({path: item['path']});
 }
 
-router.beforeEach((to: any, from: any, next: any) => {
-  menuItem.value.forEach((ele: any, index: number, arr: any) => {
+router.beforeEach((to, from, next) => {
+  if (from.fullPath === "/explore") {
+    scroll_store.setScrollTop(window.pageYOffset || window.scrollY);
+  }
+  if (to.fullPath === '/publish' || to.fullPath==='/user/info') {
+    if (!user.getUserId) {
+      ElMessage.info("需要登记信息哦~")
+      next('/user/login');
+    }
+  }
+  if(to.fullPath==='/user/login'){
+    if(user.getUserId){
+      next('/user/info')
+    }
+  }
+  menuItem.value.forEach((ele: any) => {
     ele['active'] = ele['path'].split('/')[1] === to.fullPath.split('/')[1];
-  })
+  });
   next()
 })
 
+router.afterEach((to, from, next) => {
+  menuItem.value.forEach((ele: any) => {
+    ele['active'] = ele['path'].split('/')[1] === to.fullPath.split('/')[1];
+  });
+
+})
 
 </script>
 
@@ -59,7 +73,7 @@ router.beforeEach((to: any, from: any, next: any) => {
 <style scoped>
 
 .menu-container {
-  width: 250px;
+  width: 15vw;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -81,7 +95,7 @@ router.beforeEach((to: any, from: any, next: any) => {
 }
 
 .menu-item {
-  width: 200px;
+  width: 15vw;
   height: 50px;
   display: flex;
   justify-content: center;

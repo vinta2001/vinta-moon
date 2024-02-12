@@ -23,7 +23,7 @@ import Menu from "@/components/home/menu.vue";
 }
 Menu{
   z-index: 0;
-  width: 20vw;
+  width: 25vw;
 }
 
 

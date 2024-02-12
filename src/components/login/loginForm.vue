@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {Lock, User} from "@element-plus/icons-vue";
-import type{LoginReq} from "@/interface/user";
+import type {LoginReq} from "@/interface/user";
 import {reactive, ref} from "vue";
-import {ElMessage} from 'element-plus';
 import type {FormInstance, FormRules} from 'element-plus';
+import {ElMessage} from 'element-plus';
 import {userLogin} from "@/api/userApi";
 import {userStore} from '@/stores/userStore';
+
 const emit = defineEmits(['loginSuccess']);
 const loginParam: LoginReq = reactive({
   email: "",
@@ -25,8 +26,8 @@ const login = () => {
       return false;
     }
     //校验通过
-    userLogin(loginParam.email, loginParam.password).then(((res:any) => {
-      if(res['message']!=='success'){
+    userLogin(loginParam.email, loginParam.password).then(((res: any) => {
+      if (res['message'] !== 'success') {
         throw new Error("登录失败")
       }
       user_store.setUserName(res['data']['username'])
@@ -34,13 +35,11 @@ const login = () => {
       user_store.setToken(res['data']['token'])
       user_store.setUserId(res['data']['id'])
       emit('loginSuccess');
-      // console.log(res)
     })).catch((error) => {
       ElMessage.error('登录失败')
     });
   })
 }
-
 </script>
 
 <template>
@@ -67,7 +66,7 @@ const login = () => {
   transition: 1s ease-in-out;
   transition-delay: 1s;
   padding: 0 30%;
-
+  z-index: 1;
   pointer-events: all;
 }
 
@@ -78,6 +77,7 @@ const login = () => {
   transition-delay: 3s;
   transition: 2s ease-in-out;
   pointer-events: none;
+  z-index: 0;
 }
 
 .login-title {
