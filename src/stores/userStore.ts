@@ -1,7 +1,5 @@
 import {defineStore} from 'pinia'
-import {Cache} from "@/utils/Cache";
 
-const cache = new Cache();
 export const userStore = defineStore('userStore', {
     state: () => ({
         username: '',
@@ -11,34 +9,41 @@ export const userStore = defineStore('userStore', {
     }),
     getters: {
         getUserName(): string | null {
-            return cache.getUserName();
+            return this.username
         },
         getToken(): string | null {
-            return cache.getToken();
+            return this.token
         },
         getEmail(): string | null {
-            return cache.getEmail();
+            return this.email
         },
         getUserId(): string | null {
-            return cache.getUserId();
+            return this.userId
         }
     },
     actions: {
         setUserName(username: string) {
             this.username = username
-            cache.setUserName(username)
         },
         setToken(token: string) {
             this.token = token
-            cache.setToken(token)
         },
         setEmail(email: string) {
             this.email = email
-            cache.setEmail(email)
         },
         setUserId(userId: string) {
             this.userId = userId
-            cache.setUserId(userId)
+        },
+        clear() {
+            this.username = ''
+            this.token = ''
+            this.email = ''
+            this.userId = ''
         }
     },
+    persist:[{
+        key: 'VINTA_MOON',
+        storage: localStorage,
+        paths: ['username', 'token', 'email', 'userId']
+    }]
 })

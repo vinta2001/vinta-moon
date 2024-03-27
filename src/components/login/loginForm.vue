@@ -6,6 +6,7 @@ import type {FormInstance, FormRules} from 'element-plus';
 import {ElMessage} from 'element-plus';
 import {userLogin} from "@/api/userApi";
 import {userStore} from '@/stores/userStore';
+import {useRouter} from "vue-router";
 
 const emit = defineEmits(['loginSuccess']);
 const loginParam: LoginReq = reactive({
@@ -18,7 +19,7 @@ const loginRules: FormRules = reactive<FormRules>({
   email: [{required: true, message: "请输入账号", trigger: "blur"}],
   password: [{required: true, message: "请输入密码", trigger: "blur"}],
 })
-
+const router = useRouter()
 const login = () => {
   //校验用户名和密码是否为空
   loginRef.value?.validate((valid) => {
@@ -34,6 +35,7 @@ const login = () => {
       user_store.setEmail(res['data']['email'])
       user_store.setToken(res['data']['token'])
       user_store.setUserId(res['data']['id'])
+      ElMessage.success('登录成功')
       emit('loginSuccess');
     })).catch((error) => {
       ElMessage.error('登录失败')

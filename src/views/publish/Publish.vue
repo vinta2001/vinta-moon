@@ -36,12 +36,12 @@ const postBody = reactive<NoteBody>({
 
 async function fileInput(e: Event) {
   const target = e.target as HTMLInputElement;
-  const file:File | null = target.files && target.files[0];
+  const file: File | null = target.files && target.files[0];
   if (!file) {
     return;
   }
 
-    (<HTMLInputElement>e.target)!.value = "" as string;
+  (<HTMLInputElement>e.target)!.value = "" as string;
   if (file.size > chunkSize) {
     ElMessage.error("图片大小不能超过10M");
     return;
@@ -170,7 +170,7 @@ const getLocationRecommend = (query: string, cb: any) => {
   }
 }
 
-function getLocation(item: Record<string,any>):any {
+function getLocation(item: Record<string, any>): any {
   postBody.location = item?.name;
 }
 
@@ -225,7 +225,7 @@ function getLocation(item: Record<string,any>):any {
                contentEditable="true"
                :placeholder="contentPlaceholder"
                @blur="postBody.content=postBody.content.slice(0,1000)"
-               @input="$e=>{postBody.content = (<HTMLElement>$e.target)?.innerText}"></p>
+               @input="$e=>{postBody.content = (<HTMLElement>$e.target)?.innerText.replace(/\n/g, '<br/>')}"></p>
             <div class="content-suffix">
               <span>{{ postBody.content.length }}</span>/1000
             </div>
@@ -297,7 +297,7 @@ function getLocation(item: Record<string,any>):any {
                   <span>定时发布</span>
                 </label>
                 <div class="date-timer"
-                     v-show="postBody.status === 0">
+                     v-show="postBody.status == 0">
                   <el-config-provider :locale="local">
                     <el-date-picker
                         v-model="postBody.postTime"
@@ -343,7 +343,7 @@ function getLocation(item: Record<string,any>):any {
               </div>
             </div>
             <div id="title">{{ postBody.description.length === 0 ? "请先填写标题" : postBody.description }}</div>
-            <div id="content">{{ postBody.content }}</div>
+            <div id="content" v-html="postBody.content"></div>
             <div id="time">2021-02-02 21:11:36</div>
             <div id="header-container">
               <div class="header"></div>

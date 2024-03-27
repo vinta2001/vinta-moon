@@ -31,7 +31,7 @@ function onlogin() {
         </div>
       </div>
       <div class="inner-sign-up-container">
-        <login :class="{ 'sign-up-model': veri }" @login-success="$e=>$router.push('/user/info')"></login>
+        <login :class="{ 'sign-up-model': veri }" @login-success="$e=>{$router.push({path:'/user/info',force: true})}"></login>
         <register :class="{ 'sign-up-model': veri }" @register-success="veri=!veri"></register>
       </div>
     </div>

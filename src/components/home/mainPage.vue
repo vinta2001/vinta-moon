@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import {requestInstance, requestInstance1} from "@/utils/requestUtil";
 import {nextTick, onActivated, onMounted, reactive, ref} from "vue";
 import {ArrowUp, Loading} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
-import type {PageConfig, NaviItem} from '@/interface/mainPage'
+import type {NaviItem, PageConfig} from '@/interface/mainPage'
 import {scrollStore} from "@/stores/scrollStore";
 import {getMediaList} from "@/api/pictureApi";
 // 变量定义区
@@ -15,10 +14,10 @@ let pageConfig = reactive<PageConfig>({
   imageWidth: 220,
   colHeights: [0, 0, 0, 0],
   currentType: '推荐',
-  isOnTop: true
+  isOnTop: true,
+  totalPage: 2,
 })
 const scroll_store = scrollStore();
-
 
 // '美食','美妆','时尚','技能','影视','职场','情感','家居','游戏','旅行'
 let naviItem = ref<NaviItem[]>([{'name': '推荐', 'active': true}, {'name': '穿搭', 'active': false},
@@ -44,45 +43,44 @@ function changeNaviItem(index: number) {
 
 function getData() {
   const query = {
-  "pageSize": pageConfig.pageSize,
-  "pageNum": pageConfig.currentPage,
-  "total": 0,
-  "category": "",
-  "searchKey": "",
-  "cursorScore": "",
-  "userId": ""
-}
+    "pageSize": pageConfig.pageSize,
+    "pageNum": pageConfig.currentPage,
+    "total": pageConfig.totalPage,
+    "category": "",
+    "searchKey": "",
+    "cursorScore": "",
+    "userId": ""
+  }
+  if(pageConfig.currentPage > pageConfig.totalPage) {
+    return;
+  }
   getMediaList(query).then((res) => {
-    const items = res.data.data;
-    items.forEach((item: any) => {
-      pageConfig.dataList.push(item)
-    })
-    pageConfig.currentPage += 1
+    const items:any[] = res.data.data;
+      items.forEach((item: any) => {
+        pageConfig.dataList.push(item)
+      })
+    pageConfig.currentPage++
   }).catch((error) => {
         if (error.code === "ERR_NETWORK") {
           ElMessage.error("网络错误")
         }
       }
   ).finally(() => {
-    nextTick(() => {
-      waterFull()
-    })
+    waterFull()
     pageConfig.isPageLoaded = false
   })
 }
 
+
 function waterFull() {
-  let container = null;
-  if (document.querySelector('.data-list')) {
-    container = document.querySelector('.data-list');
-  }
+
+  let container: HTMLElement = document.querySelector('.data-list') as HTMLElement;
   // 可视区域高度
-  const clientWidth = document.documentElement.clientWidth - 300;
   const sections: HTMLElement[] = Array.from(document.querySelectorAll('.note-section'));
-  const itemWidth = sections[0].offsetWidth;
-  let colNum = 5;
+  const itemWidth: number = sections[0].offsetWidth;
+  let colNum: number = 5;
   (container as HTMLElement).style.width = itemWidth * colNum + 'px';
-  let itemHeights = [];
+  let itemHeights: number[] = [];
   for (let i = 0; i < sections.length; i++) {
     if (i < colNum) {
       itemHeights.push(sections[i].offsetHeight);
@@ -95,7 +93,6 @@ function waterFull() {
       itemHeights[minIndex] += sections[i].offsetHeight;
     }
   }
-
 }
 
 function onScroll() {
@@ -117,16 +114,16 @@ function toTop() {
 
 function load() {
   getData()
+  waterFull()
 }
 
 getData()
 
 onActivated(() => {
   nextTick(() => {
-    window.scrollTo(0, scroll_store.getScrollTop ? scroll_store.getScrollTop : 0)
+    window.scrollTo(0, scroll_store.getScrollTop || 0)
   })
 })
-
 onMounted(() => {
   window.addEventListener("scroll", onScroll)
 })
@@ -143,7 +140,7 @@ onMounted(() => {
     <div class="loading" v-show="pageConfig.isPageLoaded">
       <Loading class="loading-icon"></Loading>
     </div>
-    <div class="data-list" v-infinite-scroll="load" infinite-scroll-distance="10" ref="scrollContainer"
+    <div class="data-list" v-infinite-scroll="load" infinite-scroll-distance="5"
          @scroll="onScroll">
       <div class="back-top" v-show="!pageConfig.isOnTop" @click="toTop">
         <ArrowUp class="top-icon"></ArrowUp>
@@ -151,14 +148,14 @@ onMounted(() => {
       <div class="note-section" v-for="(item,index) in pageConfig.dataList" :key="index" @scroll="onScroll">
         <a>
           <div class="cover">
-            <img class="cover-img" :src="item['cover']">
+            <img class="cover-img" :src="item['cover']" :alt="item['cover']">
             <p>{{ item['desc'] }}</p>
           </div>
         </a>
         <div class="footer">
           <a>
             <div class="user-head">
-              <div><img class="user-head-img" :src="item['user']['avatar']"></div>
+              <div><img class="user-head-img" :src="item['user']['avatar']" :alt="item['user']['avatar']"></div>
               <div><p>{{ item['user']['nickName'] }}</p></div>
             </div>
           </a>
@@ -192,7 +189,7 @@ onMounted(() => {
   align-items: center;
   height: 50px;
   width: 80%;
-  background-color: white;
+  background-color: #ff7676;
 }
 
 .loading-icon {

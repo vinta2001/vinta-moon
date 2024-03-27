@@ -11,7 +11,8 @@ export interface PageConfig {
     imageWidth: number,
     colHeights: number[],
     currentType: string,
-    isOnTop: boolean
+    isOnTop: boolean,
+    totalPage:number
 }
 
 export interface MyResponse {

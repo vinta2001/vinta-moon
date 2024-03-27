@@ -1,46 +1,52 @@
 import Constant from "@/utils/Constant";
 
-class Cache{
+class Cache {
 
-    setToken(token:string){
-        window.localStorage.setItem(Constant.token,token)
+    setToken(token: string) {
+        window.localStorage.setItem(Constant.token, token)
     }
 
-    getToken(){
+    getToken() {
         return window.localStorage.getItem(Constant.token)
     }
 
-    setEmail(email:string){
-        window.localStorage.setItem(Constant.email,email)
+    setEmail(email: string) {
+        window.localStorage.setItem(Constant.email, email)
     }
 
-    getEmail(){
-            return window.localStorage.getItem(Constant.email)
+    getEmail() {
+        return window.localStorage.getItem(Constant.email)
     }
 
-    setUserName(username:string){
-        window.localStorage.setItem(Constant.username,username)
+    setUserName(username: string) {
+        window.localStorage.setItem(Constant.username, username)
     }
 
-    getUserName(){
+    getUserName() {
         return window.localStorage.getItem(Constant.username)
     }
-    setUserId(userId:string){
-        window.localStorage.setItem(Constant.userId,userId)
+
+    setUserId(userId: string) {
+        window.localStorage.setItem(Constant.userId, userId)
     }
-    getUserId(){
+
+    getUserId() {
         return window.localStorage.getItem(Constant.userId)
+    }
+    clear(): void {
+        window.localStorage.clear()
     }
 }
 
 
-class ScrollCache{
-    setScrollTop(scrollTop:number){
-        window.localStorage.setItem("PAGE_SCROLL_TOP",scrollTop.toString())
+class ScrollCache {
+    setScrollTop(scrollTop: number) {
+        window.localStorage.setItem("PAGE_SCROLL_TOP", scrollTop.toString())
     }
 
-    getScrollTop():Number|null{
+    getScrollTop(): Number | null {
         return Number(window.localStorage.getItem("PAGE_SCROLL_TOP"))
     }
 }
-export {Cache,ScrollCache}
+
+export {Cache, ScrollCache}
